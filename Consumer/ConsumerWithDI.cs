@@ -15,7 +15,6 @@ public class ConsumerWithDI : BaseConsumer
 
     public ConsumerWithDI(
             ILoggerFactory loggerFactory,
-            IConfiguration configuration,
             IPersonRepository repository
     ) : base(loggerFactory, configuration)
     {
