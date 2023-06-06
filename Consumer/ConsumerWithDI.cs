@@ -16,7 +16,7 @@ public class ConsumerWithDI : BaseConsumer
     public ConsumerWithDI(
             ILoggerFactory loggerFactory,
             IPersonRepository repository
-    ) : base(loggerFactory, configuration)
+    ) : base(loggerFactory)
     {
         RoutingKey = RabbitMqConstants.DefaultRoutingKey;
         QueueName = RabbitMqConstants.DefaultPersonQueue;

@@ -15,7 +15,7 @@ public class ConsumerWithScope : BaseConsumer
     public ConsumerWithScope(
             ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider
-    ) : base(loggerFactory, configuration)
+    ) : base(loggerFactory)
     {
         RoutingKey = RabbitMqConstants.DefaultRoutingKey;
         QueueName = RabbitMqConstants.ScopePersonQueue;
