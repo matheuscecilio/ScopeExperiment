@@ -54,15 +54,44 @@ public abstract class BaseConsumer : IHostedService
     {
         _logger.LogInformation($"RabbitListener register,routeKey:{RoutingKey}");
 
+        var dlxQueue = $"{QueueName}-dlx";
+        var dlxExchange = $"{QueueName}-dlx-exchange";
+
+        var args = new Dictionary<string, object>()
+        {
+            { "x-dead-letter-exchange", dlxExchange }
+        };
+
+        // Dlq queue
+        _channel.ExchangeDeclare(
+            exchange: dlxExchange,
+            type: ExchangeType.Fanout
+        );
+
+        _channel.QueueDeclare(
+            queue: dlxQueue,
+            durable: true,
+            exclusive: false,
+            autoDelete: false
+        );
+
+        _channel.QueueBind(
+            queue: dlxQueue,
+            exchange: dlxExchange,
+            routingKey: ""
+        );
+
+        // Main queue
         _channel.ExchangeDeclare(
             exchange: RabbitMqConstants.DefaultExchange,
             type: ExchangeType.Topic
         );
-
         _channel.QueueDeclare(
             queue: QueueName,
+            durable: true,
             exclusive: false,
-            autoDelete: false
+            autoDelete: false,
+            arguments: args
         );
 
         _channel.QueueBind(
@@ -78,15 +107,23 @@ public abstract class BaseConsumer : IHostedService
         consumer.Received += async (model, ea) =>
         {
             var body = ea.Body.ToArray();
-            var message = Encoding.UTF8.GetString(body);
-            var result = await ProcessAsync(message);
-
-            if (result)
+            try
             {
-                _channel.BasicAck(
-                    deliveryTag: ea.DeliveryTag,
-                    multiple: false
-                );
+                var message = Encoding.UTF8.GetString(body);
+                var result = await ProcessAsync(message);
+
+                if (result)
+                {
+                    _channel.BasicAck(
+                        deliveryTag: ea.DeliveryTag,
+                        multiple: false
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, ex);
+                _channel.BasicNack(ea.DeliveryTag, false, false);
             }
         };
 

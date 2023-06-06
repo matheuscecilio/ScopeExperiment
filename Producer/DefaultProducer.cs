@@ -21,9 +21,10 @@ public class DefaultProducer : BackgroundService
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var waitTimeInSeconds = 2;
+        var waitTimeInSeconds = 0;
+        var numberOfMessages = 1000;
 
-        for(var i = 0; i < 10; i++)
+        for (var i = 0; i < numberOfMessages; i++)
         {
             var person = new Person
             {

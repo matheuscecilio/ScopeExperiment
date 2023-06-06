@@ -1,9 +1,7 @@
 ﻿using Consumer.Messaging;
 using Core.Constants;
-using Core.Data;
 using Core.Data.Repositories;
 using Core.Domain;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -27,9 +25,9 @@ public class ConsumerWithDI : BaseConsumer
     {
         var person = JsonConvert.DeserializeObject<Person>(message);
 
-        _logger.LogInformation($"Consumer with DI - {person.Id} - {DateTime.UtcNow}");
-
         await _repository.AddAsync(person);
+
+        _logger.LogInformation($"Consumer with DI - {person.Id} - {DateTime.UtcNow}");
 
         return true;
     }
